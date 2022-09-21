@@ -1,13 +1,10 @@
 import { useSphere } from '@react-three/cannon';
 import { useFrame, useThree } from '@react-three/fiber';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePlayerControls } from '../utils/helper.js';
 import * as THREE from 'three';
 
 const BaseCharacter = (props) => {
-  const controlsRef = useRef();
-  const [updateCallback, setUpdateCallback] = useState(null);
-
   const direction = new THREE.Vector3();
   const frontVector = new THREE.Vector3();
   const sideVector = new THREE.Vector3();
@@ -15,32 +12,6 @@ const BaseCharacter = (props) => {
   const SPEED = 5;
 
   const { camera } = useThree();
-
-  // Register the update event and clean up
-  useEffect(() => {
-    const onControlsChange = (val) => {
-      const { position } = val.target.object;
-      const { id } = props.socket;
-
-      const posArray = [];
-
-      position.toArray(posArray);
-
-      props.socket.emit('move', {
-        id,
-        position: posArray,
-      });
-    };
-
-    if (controlsRef.current) {
-      setUpdateCallback(controlsRef.current.addEventListener('change', onControlsChange));
-    }
-
-    // Dispose
-    return () => {
-      if (updateCallback && controlsRef.current) controlsRef.current.removeEventListener('change', onControlsChange);
-    };
-  }, [props.socket]);
 
   const [ref, api] = useSphere((index) => ({
     mass: 1,
